@@ -1,13 +1,17 @@
 sfconvert
 =====================
 
-Utility to compress sound font files with ogg vorbis.
-The compressed file can be used directly with MuseScore.
+Utilities for SoundFont files.
+
+      - compress sound font files with ogg vorbis.
+        for use with MuseScore
+
+      - convert to "C" for embedding
 
 Usage Example:
       sfconvert FluidR3.SF2 mops.sf3
 
-This compresses the Fluid sound font from 148 MBytes to 20 MBytes.
+      This compresses the Fluid sound font from 148 MBytes to 20 MBytes.
 
 
 The compressed sound font has the major version number 3. Its non standard
