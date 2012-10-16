@@ -1,0 +1,10 @@
+.*,
+.qped
+*.sf2
+sfconvert
+sf.cpp
+sf?.cpp
+CMakeCache.txt
+CMakeFiles
+cmake_install.cmake
+
