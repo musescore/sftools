@@ -615,14 +615,22 @@ bool SoundFont::writeXml(QFile* f)
       xml.header();
       xml.stag("Sfont");
       xml.tag("version", QString("%1.%2").arg(version.major).arg(version.minor));
-      xml.tag("name",      Xml::xmlString(name));
-      xml.tag("engine",    Xml::xmlString(engine));
-      xml.tag("date",      Xml::xmlString(date));
-      xml.tag("comment",   Xml::xmlString(comment));
-      xml.tag("tools",     Xml::xmlString(tools));
-      xml.tag("creator",   Xml::xmlString(creator));
-      xml.tag("product",   Xml::xmlString(product));
-      xml.tag("copyright", Xml::xmlString(copyright));
+      if (name)
+            xml.tag("name",      Xml::xmlString(name));
+      if (engine)
+            xml.tag("engine",    Xml::xmlString(engine));
+      if (date)
+            xml.tag("date",      Xml::xmlString(date));
+      if (comment)
+            xml.tag("comment",   Xml::xmlString(comment));
+      if (tools)
+            xml.tag("tools",     Xml::xmlString(tools));
+      if (creator)
+            xml.tag("creator",   Xml::xmlString(creator));
+      if (product)
+            xml.tag("product",   Xml::xmlString(product));
+      if (copyright)
+            xml.tag("copyright", Xml::xmlString(copyright));
 
       foreach(Preset* p, presets) {
             xml.stag(QString("Preset name=\"%1\" preset=\"%2\" bank=\"%3\"")
@@ -735,14 +743,22 @@ bool SoundFont::write(QFile* f)
             file->write("INFO", 4);
 
             writeIfil();
-            writeStringSection("INAM", name);
-            writeStringSection("isng", engine);
-            writeStringSection("IPRD", product);
-            writeStringSection("IENG", creator);
-            writeStringSection("ISFT", tools);
-            writeStringSection("ICRD", date);
-            writeStringSection("ICMT", comment);
-            writeStringSection("ICOP", copyright);
+            if (name)
+                  writeStringSection("INAM", name);
+            if (engine)
+                  writeStringSection("isng", engine);
+            if (product)
+                  writeStringSection("IPRD", product);
+            if (creator)
+                  writeStringSection("IENG", creator);
+            if (tools)
+                  writeStringSection("ISFT", tools);
+            if (date)
+                  writeStringSection("ICRD", date);
+            if (comment)
+                  writeStringSection("ICMT", comment);
+            if (copyright)
+                  writeStringSection("ICOP", copyright);
 
             qint64 pos = file->pos();
             file->seek(listLenPos);

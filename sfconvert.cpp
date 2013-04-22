@@ -34,6 +34,7 @@ bool smallSf = false;
 static void usage(const char* pname)
       {
       fprintf(stderr, "usage: %s [-flags] soundfont [outfile]\n", pname);
+      fprintf(stderr, "   -z     compress sf\n");
       fprintf(stderr, "   -x     xml ouput\n");
       fprintf(stderr, "   -c     c ouput\n");
       fprintf(stderr, "   -p nn  preset\n");
@@ -50,13 +51,14 @@ int main(int argc, char* argv[])
       bool xml  = false;
       bool code = false;
       bool dump = false;
+      bool compress = false;
 
       QList<int> presets;
 
       fprintf(stderr, "%s: convert sound file\n", argv[0]);
 
       int c;
-      while ((c = getopt(argc, argv, "xcp:ds")) != EOF) {
+      while ((c = getopt(argc, argv, "xcp:dsz")) != EOF) {
             switch(c) {
                   case 'x':
                         xml = true;
@@ -72,6 +74,9 @@ int main(int argc, char* argv[])
                         break;
                   case 's':
                         smallSf = true;
+                        break;
+                  case 'z':
+                        compress = true;
                         break;
                   default:
                         usage(argv[0]);
@@ -90,7 +95,7 @@ int main(int argc, char* argv[])
             usage(pname);
             exit(3);
             }
-      if (!xml && !code && !dump) {
+      if (!xml && !code && !dump && !compress) {
             usage(pname);
             exit(4);
             }
@@ -110,7 +115,7 @@ int main(int argc, char* argv[])
             }
       else if (dump)
             sf.dumpPresets();
-      else {
+      else if (compress) {
             QFile fo(argv[1]);
             if (!fo.open(QIODevice::WriteOnly)) {
                   fprintf(stderr, "cannot open <%s>\n", argv[2]);

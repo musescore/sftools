@@ -33,6 +33,8 @@ endif (NOT QT4_FOUND)
 
 include(${QT_USE_FILE})
 
+set(CMAKE_CXX_FLAGS   "-g")
+
 add_executable(sfconvert
    sfconvert.cpp sfont.cpp xml.cpp
    )
