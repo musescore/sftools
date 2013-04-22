@@ -1,10 +1,5 @@
-.*,
-.qped
-*.sf2
-sfconvert
-sf.cpp
-sf?.cpp
-CMakeCache.txt
-CMakeFiles
-cmake_install.cmake
-
+build.qtcreator
+build.release
+build.debug
+win32install
+CMakeLists.txt.user
