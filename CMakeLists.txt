@@ -39,11 +39,34 @@ add_executable(sfconvert
    sfconvert.cpp sfont.cpp xml.cpp
    )
 
-target_link_libraries(sfconvert
-   ${QT_LIBRARIES}
-   vorbis
-   vorbisenc
-   ogg
-   sndfile
+if (MINGW)
+   target_link_libraries(sfconvert
+      ${QT_LIBRARIES}
+      vorbis
+      ##vorbisfile
+      ogg
+      sndfile-1
    )
 
+   install( TARGETS sfconvert RUNTIME DESTINATION . )
+
+   install_files ( . .dll
+      ${CROSS}/bin/libgcc_s_sjlj-1.dll
+      ${CROSS}/bin/libstdc++-6.dll
+      ${CROSS}/bin/libwinpthread-1.dll
+      ${CROSS}/lib/libsndfile-1.dll
+      ${CROSS}/lib/libogg.dll
+      ${CROSS}/lib/libvorbis.dll
+      #${CROSS}/lib/libvorbisfile.dll
+      ${CROSSQT}/bin/QtCore4.dll
+      ${CROSSQT}/bin/QtXml4.dll
+      )
+else (MINGW)
+   target_link_libraries(sfconvert
+      ${QT_LIBRARIES}
+      vorbis
+      vorbisenc
+      ogg
+      sndfile
+   )
+endif (MINGW)

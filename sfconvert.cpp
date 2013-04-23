@@ -23,6 +23,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <QtCore/QFile>
+#include <QtCore/QTime>
 #include "sfont.h"
 
 bool smallSf = false;
@@ -55,6 +56,8 @@ int main(int argc, char* argv[])
 
       QList<int> presets;
 
+      QTime t;
+      t.start();
       fprintf(stderr, "%s: convert sound file\n", argv[0]);
 
       int c;
@@ -127,6 +130,7 @@ int main(int argc, char* argv[])
                   sf.write(&fo);
             fo.close();
             }
+      qDebug("Soundfont converted in: %d ms", t.elapsed());
       return 0;
       }
 

@@ -50,6 +50,8 @@ extern bool smallSf;    // create small sf
 
 #define FOURCC(a, b, c, d) a << 24 | b << 16 | c << 8 | d
 
+#define BLOCK_SIZE 1024
+
 static const bool writeCompressed = true;
 
 //---------------------------------------------------------
@@ -1220,30 +1222,40 @@ int SoundFont::writeCompressedSample(Sample* s)
             }
 
       long i;
-      float **buffer = vorbis_analysis_buffer(&vd, samples);
+      int page = 0;
 
-      for (i = 0; i < samples; i++)
-            buffer[0][i] = ibuffer[i] / 32768.f;
+      for(;;) {
+            float **buffer = vorbis_analysis_buffer(&vd, BLOCK_SIZE);
+            int j = 0;
+            int max = qMin((page+1)*BLOCK_SIZE, samples);
+            for (i = page * BLOCK_SIZE; i < max ; i++) {
+                  buffer[0][j] = ibuffer[i] / 32768.f;
+                  j++;
+                  }
 
-      vorbis_analysis_wrote(&vd, samples);
+            vorbis_analysis_wrote(&vd, BLOCK_SIZE);
 
-      while (vorbis_analysis_blockout(&vd, &vb) == 1) {
-            vorbis_analysis(&vb, 0);
-            vorbis_bitrate_addblock(&vb);
+            while (vorbis_analysis_blockout(&vd, &vb) == 1) {
+                  vorbis_analysis(&vb, 0);
+                  vorbis_bitrate_addblock(&vb);
 
-            while (vorbis_bitrate_flushpacket(&vd, &op)) {
-                  ogg_stream_packetin(&os, &op);
+                  while (vorbis_bitrate_flushpacket(&vd, &op)) {
+                        ogg_stream_packetin(&os, &op);
 
-                  for(;;) {
-                        int result = ogg_stream_pageout(&os, &og);
-                        if (result == 0)
-                              break;
-                        memcpy(p, og.header, og.header_len);
-                        p += og.header_len;
-                        memcpy(p, og.body, og.body_len);
-                        p += og.body_len;
+                        for(;;) {
+                              int result = ogg_stream_pageout(&os, &og);
+                              if (result == 0)
+                                    break;
+                              memcpy(p, og.header, og.header_len);
+                              p += og.header_len;
+                              memcpy(p, og.body, og.body_len);
+                              p += og.body_len;
+                              }
                         }
                   }
+                  page++;
+                  if (max == samples)
+                        break;
             }
 
       vorbis_analysis_wrote(&vd, 0);
