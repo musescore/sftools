@@ -35,7 +35,11 @@ set(QT_USE_QTXML         TRUE)
 
 # include(${QT_USE_FILE})
 
-set(CMAKE_CXX_FLAGS   "-g")
+if (MINGW)
+      set(CMAKE_CXX_FLAGS   "-g")
+else (MINGW)
+      set(CMAKE_CXX_FLAGS   "-g -fPIC -fPIE")
+endif (MINGW)
 
 add_executable(sfconvert
    sfconvert.cpp sfont.cpp xml.cpp
