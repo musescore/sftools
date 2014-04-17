@@ -4,8 +4,8 @@
 
 set (CMAKE_SYSTEM_NAME "Windows")
 
-set (CROSS C:/MinGW4.7.2)
-set (CROSSQT C:/Qt/Qt32-4.8.4)
+set (CROSS C:/Qt/Tools/mingw48_32)
+set (CROSSQT C:/Qt/5.2.1/mingw48_32)
 
 set (CMAKE_C_COMPILER     ${CROSS}/bin/gcc.exe)
 set (CMAKE_CXX_COMPILER   ${CROSS}/bin/g++.exe)
@@ -39,14 +39,13 @@ set (QT_INCLUDES ${QT_INCLUDE_DIR} ${QT_QT_INCLUDE_DIR}
      ${QT_QTXMLPATTERNS_INCLUDE_DIR}
      )
 set (QT_mingw_LIBRARIES
-    QtSvg4
-    QtGui4
-    QtCore4
-    QtXml4
-    QtNetwork4
-    QtWebKit4
-    QtXmlPatterns4
-    QtDeclarative4
+    Qt5Svg
+    Qt5Gui
+    Qt5Core
+    Qt5Xml
+    Qt5Network
+    Qt5WebKit
+    Qt5XmlPatterns
     )
 
 #    Qt3Support4
