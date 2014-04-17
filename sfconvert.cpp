@@ -40,7 +40,7 @@ static void usage(const char* pname)
       fprintf(stderr, "   -c     c ouput\n");
       fprintf(stderr, "   -p nn  preset\n");
       fprintf(stderr, "   -d     dump presets\n");
-      fprintf(stderr, "   -s     create small sf (one instrument/preset)\n");
+      fprintf(stderr, "   -s     create small sf (one instrument/preset), pan to 0\n");
       }
 
 //---------------------------------------------------------

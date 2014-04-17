@@ -1337,6 +1337,98 @@ bool SoundFont::writeCSample(Sample* s, int idx)
       }
 
 //---------------------------------------------------------
+//   checkInstrument
+//---------------------------------------------------------
+
+static bool checkInstrument(QList<int> pnums, QList<Preset*> presets, int instrIdx)
+      {
+      foreach(int idx, pnums) {
+            Preset* p = presets[idx];
+            foreach(Zone* z, p->zones) {
+                  foreach(GeneratorList* g, z->generators) {
+                        if (g->gen == Gen_Instrument) {
+                              if (instrIdx == g->amount.uword)
+                                    return true;
+                              }
+                        }
+                  }
+            }
+      return false;
+      }
+
+static bool checkInstrument(QList<Preset*> presets, int instrIdx) {
+      bool result = false;
+      for(int i = 0; i < presets.size(); i++) {
+            Preset* p = presets[i];
+            Zone* z = p->zones[0];
+            foreach(GeneratorList* g, z->generators) {
+                        if (g->gen == Gen_Instrument) {
+                              if (instrIdx == g->amount.uword)
+                                    return true;
+                              }
+                        }
+            }
+      return false;
+      }
+
+//---------------------------------------------------------
+//   checkSample
+//---------------------------------------------------------
+
+static bool checkSample(QList<int> pnums, QList<Preset*> presets, QList<Instrument*> instruments,
+   int sampleIdx)
+      {
+      int idx = 0;
+      foreach(Instrument* instrument, instruments) {
+            if (!checkInstrument(pnums, presets, idx)) {
+                  ++idx;
+                  continue;
+                  }
+            int zones = instrument->zones.size();
+            foreach(Zone* z, instrument->zones) {
+                  QList<GeneratorList*> gl;
+                  foreach(GeneratorList* g, z->generators) {
+                        if (g->gen == Gen_SampleId) {
+                              if (sampleIdx == g->amount.uword)
+                                    return true;
+                              }
+                        }
+                  }
+            ++idx;
+            }
+      return false;
+      }
+
+//---------------------------------------------------------
+//   checkSample
+//---------------------------------------------------------
+
+static bool checkSample(QList<Preset*> presets, QList<Instrument*> instruments,
+   int sampleIdx)
+      {
+      int idx = 0;
+      foreach(Instrument* instrument, instruments) {
+            if (!checkInstrument(presets, idx)) {
+                  ++idx;
+                  continue;
+                  }
+            int zones = instrument->zones.size();
+            foreach(Zone* z, instrument->zones) {
+                  QList<GeneratorList*> gl;
+                  foreach(GeneratorList* g, z->generators) {
+                        if (g->gen == Gen_SampleId) {
+                              if (sampleIdx == g->amount.uword)
+                                    return true;
+                              }
+                        }
+                  }
+            ++idx;
+            }
+      return false;
+      }
+
+
+//---------------------------------------------------------
 //   writeCode
 //---------------------------------------------------------
 
@@ -1360,15 +1452,19 @@ bool SoundFont::writeCode()
                   end = samples.size();
             else
                   end = (i+1) * n;
+            QList<int> sampleIdx;
             for (int idx = i * n; idx < end; ++idx) {
+                  if (smallSf && !checkSample(presets, instruments, idx))
+                        continue;
                   Sample* s = samples[idx];
                   writeCSample(s, idx);
+                  sampleIdx.append(idx);
                   }
 
             //
             // dump Sample[]
             //
-            for (int idx = i * n; idx < end; ++idx) {
+            foreach(int idx, sampleIdx) {
                   Sample* s = samples[idx];
                   fprintf(f, "Sample sample%d(%d, %d, %d, %d, %d, %d, %d, %d, wave%d);\n",
                      idx,
@@ -1406,6 +1502,10 @@ bool SoundFont::writeCode()
       int idx2;
       int idx = 0;
       foreach(Instrument* instrument, instruments) {
+            if (smallSf && !checkInstrument(presets, idx)) {
+                  ++idx;
+                  continue;
+                  }
             int zones = instrument->zones.size();
             idx2 = 0;
             foreach(Zone* z, instrument->zones) {
@@ -1430,6 +1530,8 @@ bool SoundFont::writeCode()
                               sampleIdx = g->amount.uword;
                         else
                               gl.append(g);
+                        if (smallSf && g->gen == Gen_Pan)
+                              g->amount.uword = 0;
                         }
                   int idx3 = 0;
                   foreach(GeneratorList* g, gl) {
@@ -1481,7 +1583,6 @@ bool SoundFont::writeCode()
 
       idx = 0;
       foreach(Preset* p, presets) {
-//            fprintf(f, "static PZone pglobalZone%d();\n", idx);
             idx2 = 0;
             int zones = p->zones.size();
             if (smallSf)
@@ -1506,14 +1607,7 @@ bool SoundFont::writeCode()
                               }
                         else if (g->gen == Gen_Instrument)
                               instrIdx = g->amount.uword;
-//                        else
-//                              xml.tagE(QString("Generator name=\"%1\" val=\"%2\"")
-//                                 .arg(name).arg(g->amount.sword));
                         }
-//                  if (instrIdx == -1)
-//                        fprintf(f, "static PZone pz%d_%d(%d, %d, %d, %d, 0);\n", idx, idx2, keyLo, keyHi, veloLo, veloHi);
-//                  else
-//                        fprintf(f, "static PZone pz%d_%d(%d, %d, %d, %d, &instr%d);\n", idx, idx2, keyLo, keyHi, veloLo, veloHi, instrIdx);
                   if (keyLo == 0
                      && keyHi == 127
                      && veloLo == 0
@@ -1543,7 +1637,6 @@ bool SoundFont::writeCode()
                   }
             fprintf(f, "      };\n");
 
-//          fprintf(f, "Preset preset%d(%d, %d, &globalZone%d, d, &zones%d)\n",
             fprintf(f, "static Preset preset%d(%d, %d, 0, %d, pzones%d);  // %s\n\n",
                idx, p->preset, p->bank, zones, idx, p->name);
             ++idx;
@@ -1561,53 +1654,7 @@ bool SoundFont::writeCode()
       return true;
       }
 
-//---------------------------------------------------------
-//   checkInstrument
-//---------------------------------------------------------
 
-static bool checkInstrument(QList<int> pnums, QList<Preset*> presets, int instrIdx)
-      {
-      foreach(int idx, pnums) {
-            Preset* p = presets[idx];
-            foreach(Zone* z, p->zones) {
-                  foreach(GeneratorList* g, z->generators) {
-                        if (g->gen == Gen_Instrument) {
-                              if (instrIdx == g->amount.uword)
-                                    return true;
-                              }
-                        }
-                  }
-            }
-      return false;
-      }
-
-//---------------------------------------------------------
-//   checkSample
-//---------------------------------------------------------
-
-static bool checkSample(QList<int> pnums, QList<Preset*> presets, QList<Instrument*> instruments,
-   int sampleIdx)
-      {
-      int idx = 0;
-      foreach(Instrument* instrument, instruments) {
-            if (!checkInstrument(pnums, presets, idx)) {
-                  ++idx;
-                  continue;
-                  }
-            int zones = instrument->zones.size();
-            foreach(Zone* z, instrument->zones) {
-                  QList<GeneratorList*> gl;
-                  foreach(GeneratorList* g, z->generators) {
-                        if (g->gen == Gen_SampleId) {
-                              if (sampleIdx == g->amount.uword)
-                                    return true;
-                              }
-                        }
-                  }
-            ++idx;
-            }
-      return false;
-      }
 
 //---------------------------------------------------------
 //   writeCode
