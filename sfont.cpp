@@ -1229,7 +1229,8 @@ int SoundFont::writeCompressedSample(Sample* s)
             int j = 0;
             int max = qMin((page+1)*BLOCK_SIZE, samples);
             for (i = page * BLOCK_SIZE; i < max ; i++) {
-                  buffer[0][j] = ibuffer[i] / 32768.f;
+                  // buffer[0][j] = ibuffer[i] / 32768.f;
+                  buffer[0][j] = ibuffer[i] / 35000.f; // HACK: attenuate samples due to libsndfile bug
                   j++;
                   }
 
