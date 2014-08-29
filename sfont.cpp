@@ -337,7 +337,7 @@ void SoundFont::readVersion()
 
 char* SoundFont::readString(int n)
       {
-      char data[256];
+      char data[2500];
       if (file->read((char*)data, n) != n)
             throw(QString("unexpected end of file\n"));
       if (data[n-1] != 0)
