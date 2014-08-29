@@ -36,9 +36,9 @@ set(QT_USE_QTXML         TRUE)
 # include(${QT_USE_FILE})
 
 if (MINGW)
-      set(CMAKE_CXX_FLAGS   "-g")
+      set(CMAKE_CXX_FLAGS   "-g -std=c++0x")
 else (MINGW)
-      set(CMAKE_CXX_FLAGS   "-g -fPIC -fPIE")
+      set(CMAKE_CXX_FLAGS   "-g -std=c++0x -fPIC -fPIE")
 endif (MINGW)
 
 add_executable(sfconvert
