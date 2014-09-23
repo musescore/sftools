@@ -1224,6 +1224,8 @@ int SoundFont::writeCompressedSample(Sample* s)
       long i;
       int page = 0;
 
+      int loopend = s->loopend;
+      int loopstart = s->loopstart;
       for(;;) {
             float **buffer = vorbis_analysis_buffer(&vd, BLOCK_SIZE);
             int j = 0;
@@ -1231,7 +1233,18 @@ int SoundFont::writeCompressedSample(Sample* s)
             for (i = page * BLOCK_SIZE; i < max ; i++) {
                   // buffer[0][j] = ibuffer[i] / 32768.f;
                   buffer[0][j] = ibuffer[i] / 35000.f; // HACK: attenuate samples due to libsndfile bug
+                  if (i > loopend-1)
+                        break;
                   j++;
+                  }
+            int kk = 0;
+            if (i == loopend) {
+                  for (i = loopend; i < ((page+1) * BLOCK_SIZE) ; i++) {
+                        if ((loopstart + kk) < max)
+                              buffer[0][j] = ibuffer[loopstart + kk] / 35000.f; // HACK: attenuate samples due to libsndfile bug
+                        kk++;
+                        j++;
+                        }
                   }
 
             vorbis_analysis_wrote(&vd, BLOCK_SIZE);
