@@ -1225,7 +1225,8 @@ int SoundFont::writeCompressedSample(Sample* s)
       int page = 0;
 
       for(;;) {
-            float **buffer = vorbis_analysis_buffer(&vd, BLOCK_SIZE);
+            int bufflength = qMin(BLOCK_SIZE, samples-page*BLOCK_SIZE);
+            float **buffer = vorbis_analysis_buffer(&vd, bufflength);
             int j = 0;
             int max = qMin((page+1)*BLOCK_SIZE, samples);
             for (i = page * BLOCK_SIZE; i < max ; i++) {
@@ -1234,7 +1235,7 @@ int SoundFont::writeCompressedSample(Sample* s)
                   j++;
                   }
 
-            vorbis_analysis_wrote(&vd, BLOCK_SIZE);
+            vorbis_analysis_wrote(&vd, bufflength);
 
             while (vorbis_analysis_blockout(&vd, &vb) == 1) {
                   vorbis_analysis(&vb, 0);
@@ -1255,7 +1256,7 @@ int SoundFont::writeCompressedSample(Sample* s)
                         }
                   }
                   page++;
-                  if (max == samples)
+                  if ((max == samples) || !((samples-page*BLOCK_SIZE)>0))
                         break;
             }
 
