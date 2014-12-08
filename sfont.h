@@ -105,14 +105,14 @@ struct Zone {
 //---------------------------------------------------------
 
 struct Preset {
-      char* name;
-      int preset;
-      int bank;
-      int presetBagNdx; // used only for read
-      int library;
-      int genre;
-      int morphology;
-      QList<Zone*> zones;
+      char* name         {0};
+      int preset         {0};
+      int bank           {0};
+      int presetBagNdx   {0}; // used only for read
+      int library        {0};
+      int genre          {0};
+      int morphology     {0};
+      QList<Zone*> zones {0};
       };
 
 //---------------------------------------------------------

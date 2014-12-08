@@ -65,7 +65,7 @@ Sample::Sample()
 
 Sample::~Sample()
       {
-      delete name;
+      free(name);
       }
 
 //---------------------------------------------------------
@@ -79,7 +79,7 @@ Instrument::Instrument()
 
 Instrument::~Instrument()
       {
-      delete name;
+      free(name);
       }
 
 //---------------------------------------------------------
@@ -101,14 +101,14 @@ SoundFont::SoundFont(const QString& s)
 
 SoundFont::~SoundFont()
       {
-      delete engine;
-      delete name;
-      delete date;
-      delete comment;
-      delete tools;
-      delete creator;
-      delete product;
-      delete copyright;
+      free(engine);
+      free(name);
+      free(date);
+      free(comment);
+      free(tools);
+      free(creator);
+      free(product);
+      free(copyright);
       }
 
 //---------------------------------------------------------
@@ -337,7 +337,7 @@ void SoundFont::readVersion()
 
 char* SoundFont::readString(int n)
       {
-      char data[256];
+      char data[2500];
       if (file->read((char*)data, n) != n)
             throw(QString("unexpected end of file\n"));
       if (data[n-1] != 0)
