@@ -112,7 +112,7 @@ struct Preset {
       int library        {0};
       int genre          {0};
       int morphology     {0};
-      QList<Zone*> zones {0};
+      QList<Zone*> zones;
       };
 
 //---------------------------------------------------------
