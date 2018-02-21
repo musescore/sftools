@@ -660,7 +660,7 @@ bool SoundFont::writeXml(QFile* f)
                   xml.tag("pitchadj", s->pitchadj);
             xml.tag("sampletype",  s->sampletype);
             xml.etag();
-            // writeSampleFile(s, QString("%1").arg(idx));
+            writeSampleFile(s, QString("%1").arg(idx));
             ++idx;
             }
       xml.etag();
@@ -1564,10 +1564,15 @@ bool SoundFont::writeCode()
                         }
                   if (sampleIdx == -1)
                         fprintf(f, "static IZone iz%d_%d(%d, %d, %d, %d, 0, 0, 0);\n", idx, idx2, keyLo, keyHi, veloLo, veloHi);
-                  else
+                  else if (n)
                         fprintf(f, "static IZone iz%d_%d(%d, %d, %d, %d, &sample%d, %d, geList_%d_%d);  // %s\n",
                            idx, idx2, keyLo, keyHi, veloLo, veloHi, sampleIdx, n, idx, idx2,
                            samples[sampleIdx]->name);
+                  else
+                        fprintf(f, "static IZone iz%d_%d(%d, %d, %d, %d, &sample%d, %d, 0);  // %s\n",
+                           idx, idx2, keyLo, keyHi, veloLo, veloHi, sampleIdx, n,
+                           samples[sampleIdx]->name);
+
                   ++idx2;
                   }
 
@@ -1582,7 +1587,6 @@ bool SoundFont::writeCode()
       //
       // dump Preset[]
       //
-
       idx = 0;
       foreach(Preset* p, presets) {
             idx2 = 0;
@@ -1620,7 +1624,7 @@ bool SoundFont::writeCode()
                               fprintf(f, "static PZone pz%d_%d(&instr%d);\n", idx, idx2, instrIdx);
                         }
                   else {
-                        abort();
+                        //abort();
 
                         if (instrIdx == -1)
                               fprintf(f, "static PZone pz%d_%d(%d, %d, %d, %d, 0);\n", idx, idx2, keyLo, keyHi, veloLo, veloHi);
@@ -1643,6 +1647,7 @@ bool SoundFont::writeCode()
                idx, p->preset, p->bank, zones, idx, p->name);
             ++idx;
             }
+
 
       fprintf(f, "static Preset* sfPresets[%d] = {\n", presets.size());
       for(int idx = 0; idx < presets.size(); ++idx)

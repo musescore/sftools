@@ -94,7 +94,7 @@ int main(int argc, char* argv[])
             usage(pname);
             exit(2);
             }
-      if (code && (argc != 1) || dump && argc != 1) {
+      if ((code && (argc != 1)) || (dump && argc != 1)) {
             usage(pname);
             exit(3);
             }
