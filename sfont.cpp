@@ -22,6 +22,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #include <sndfile.h>
 #include <vorbis/vorbisenc.h>
 
@@ -728,9 +729,11 @@ void SoundFont::write(Xml& xml, Zone* z)
 //   write
 //---------------------------------------------------------
 
-bool SoundFont::write(QFile* f)
+bool SoundFont::write(QFile* f, double oggQuality, double oggAmp)
       {
       file = f;
+      _oggQuality = oggQuality;
+      _oggAmp = oggAmp;
       qint64 riffLenPos;
       qint64 listLenPos;
       try {
@@ -1188,7 +1191,7 @@ int SoundFont::writeCompressedSample(Sample* s)
       vorbis_comment   vc;
 
       vorbis_info_init(&vi);
-      int ret = vorbis_encode_init_vbr(&vi, 1, s->samplerate, 0.3);
+      int ret = vorbis_encode_init_vbr(&vi, 1, s->samplerate, _oggQuality);
       if (ret) {
             printf("vorbis init failed\n");
             return false;
@@ -1223,15 +1226,14 @@ int SoundFont::writeCompressedSample(Sample* s)
 
       long i;
       int page = 0;
-
+      double linearAmp = pow(10.0, _oggAmp / 20.0);
       for(;;) {
             int bufflength = qMin(BLOCK_SIZE, samples-page*BLOCK_SIZE);
             float **buffer = vorbis_analysis_buffer(&vd, bufflength);
             int j = 0;
             int max = qMin((page+1)*BLOCK_SIZE, samples);
             for (i = page * BLOCK_SIZE; i < max ; i++) {
-                  // buffer[0][j] = ibuffer[i] / 32768.f;
-                  buffer[0][j] = ibuffer[i] / 35000.f; // HACK: attenuate samples due to libsndfile bug
+                  buffer[0][j] = (ibuffer[i] / 32768.f) * linearAmp;
                   j++;
                   }
 

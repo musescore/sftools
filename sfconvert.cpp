@@ -36,6 +36,8 @@ static void usage(const char* pname)
       {
       fprintf(stderr, "usage: %s [-flags] soundfont [outfile]\n", pname);
       fprintf(stderr, "   -z     compress sf\n");
+      fprintf(stderr, "   -q qq  ogg quality\n");
+      fprintf(stderr, "   -a nn  amplification in dB before ogg compression\n");
       fprintf(stderr, "   -x     xml ouput\n");
       fprintf(stderr, "   -c     c ouput\n");
       fprintf(stderr, "   -p nn  preset\n");
@@ -53,6 +55,8 @@ int main(int argc, char* argv[])
       bool code = false;
       bool dump = false;
       bool compress = false;
+      double oggQuality = 0.3;
+      double oggAmp = -1.0;
 
       QList<int> presets;
 
@@ -80,6 +84,12 @@ int main(int argc, char* argv[])
                         break;
                   case 'z':
                         compress = true;
+                        break;
+                  case 'q':
+                        oggQuality = atof(optarg);
+                        break;
+                  case 'a':
+                        oggAmp = atof(optarg);
                         break;
                   default:
                         usage(argv[0]);
@@ -127,7 +137,7 @@ int main(int argc, char* argv[])
             if (xml)
                   sf.writeXml(&fo);
             else
-                  sf.write(&fo);
+                  sf.write(&fo, oggQuality, oggAmp);
             fo.close();
             }
       qDebug("Soundfont converted in: %d ms", t.elapsed());
