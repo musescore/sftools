@@ -65,7 +65,7 @@ int main(int argc, char* argv[])
       fprintf(stderr, "%s: convert sound file\n", argv[0]);
 
       int c;
-      while ((c = getopt(argc, argv, "xcp:dsz")) != EOF) {
+      while ((c = getopt(argc, argv, "xcp:dszq:a:")) != EOF) {
             switch(c) {
                   case 'x':
                         xml = true;
