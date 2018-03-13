@@ -11,7 +11,7 @@
 #  the file LICENSE.GPL
 #=============================================================================
 
-project(sfconvert)
+project(sf3convert)
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6.0)
 include (GNUInstallDirs)
 include (${PROJECT_SOURCE_DIR}/build/FindQt5.cmake)
@@ -35,7 +35,7 @@ add_executable(sf3convert
    )
 
 if (MINGW)
-   target_link_libraries(sfconvert
+   target_link_libraries(sf3convert
       ${QT_LIBRARIES}
       vorbis
       ##vorbisfile
@@ -43,7 +43,7 @@ if (MINGW)
       sndfile-1
    )
 
-   install( TARGETS sfconvert RUNTIME DESTINATION . )
+   install( TARGETS sf3convert RUNTIME DESTINATION . )
 
    install_files ( . .dll
       ${CROSS}/bin/libgcc_s_dw2-1.dll
