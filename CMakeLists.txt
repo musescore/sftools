@@ -20,10 +20,13 @@ include (${PROJECT_SOURCE_DIR}/build/UsePkgConfig1.cmake)
 set(QT_MIN_VERSION    "5.6")
 set(QT_USE_QTXML         TRUE)
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+
+# distributions might need to override these
 if (MINGW)
-      set(CMAKE_CXX_FLAGS   "-g -std=c++0x")
+      set(CMAKE_CXX_FLAGS   "${CMAKE_CXX_FLAGS} -g")
 else (MINGW)
-      set(CMAKE_CXX_FLAGS   "-g -std=c++0x -fPIC -fPIE")
+      set(CMAKE_CXX_FLAGS   "${CMAKE_CXX_FLAGS} -g -fPIC -fPIE")
 endif (MINGW)
 
 add_executable(sfconvert
