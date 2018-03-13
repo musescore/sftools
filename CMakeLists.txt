@@ -13,6 +13,7 @@
 
 project(sfconvert)
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6.0)
+include (GNUInstallDirs)
 include (${PROJECT_SOURCE_DIR}/build/FindQt5.cmake)
 include (${PROJECT_SOURCE_DIR}/build/UsePkgConfig1.cmake)
 # set(CMAKE_VERBOSE_MAKEFILE ON)
@@ -113,4 +114,5 @@ else (MINGW)
    )
 
    install(TARGETS sf3convert RUNTIME DESTINATION bin)
+   install(FILES sf3convert.1 DESTINATION ${CMAKE_INSTALL_MANDIR}/man1 COMPONENT doc)
 endif (MINGW)
