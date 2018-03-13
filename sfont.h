@@ -179,6 +179,7 @@ class SoundFont {
 
       double _oggQuality;
       double _oggAmp;
+      qint64 _oggSerial;
 
       unsigned readDword();
       int readWord();
@@ -232,7 +233,7 @@ class SoundFont {
       SoundFont(const QString&);
       ~SoundFont();
       bool read();
-      bool write(QFile*, double oggQuality, double oggAmp);
+      bool write(QFile*, double oggQuality, double oggAmp, qint64 oggSerial);
       bool readXml(QFile*);
       bool writeXml(QFile*);
       bool writeCode(QList<int>);

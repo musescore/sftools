@@ -43,6 +43,7 @@ static void usage(const char* pname)
       fprintf(stderr, "   -p nn  preset\n");
       fprintf(stderr, "   -d     dump presets\n");
       fprintf(stderr, "   -s     create small sf (one instrument/preset), pan to 0\n");
+      fprintf(stderr, "   -S nn  ogg serial number\n");
       }
 
 //---------------------------------------------------------
@@ -57,6 +58,7 @@ int main(int argc, char* argv[])
       bool compress = false;
       double oggQuality = 0.3;
       double oggAmp = -1.0;
+      qint64 oggSerial = std::numeric_limits<qint64>::max();
 
       QList<int> presets;
 
@@ -65,7 +67,7 @@ int main(int argc, char* argv[])
       fprintf(stderr, "%s: convert sound file\n", argv[0]);
 
       int c;
-      while ((c = getopt(argc, argv, "xcp:dszq:a:")) != EOF) {
+      while ((c = getopt(argc, argv, "xcp:dS:szq:a:")) != EOF) {
             switch(c) {
                   case 'x':
                         xml = true;
@@ -78,6 +80,9 @@ int main(int argc, char* argv[])
                         break;
                   case 'd':
                         dump = true;
+                        break;
+                  case 'S':
+                        oggSerial = atoi(optarg);
                         break;
                   case 's':
                         smallSf = true;
@@ -137,7 +142,7 @@ int main(int argc, char* argv[])
             if (xml)
                   sf.writeXml(&fo);
             else
-                  sf.write(&fo, oggQuality, oggAmp);
+                  sf.write(&fo, oggQuality, oggAmp, oggSerial);
             fo.close();
             }
       qDebug("Soundfont converted in: %d ms", t.elapsed());
