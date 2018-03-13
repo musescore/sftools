@@ -111,4 +111,6 @@ else (MINGW)
       vorbisenc
       ${SNDFILE_LIB}
    )
+
+   install(TARGETS sfconvert RUNTIME DESTINATION bin)
 endif (MINGW)
