@@ -29,7 +29,7 @@ else (MINGW)
       set(CMAKE_CXX_FLAGS   "${CMAKE_CXX_FLAGS} -g -fPIC -fPIE")
 endif (MINGW)
 
-add_executable(sfconvert
+add_executable(sf3convert
    sfconvert.cpp sfont.cpp xml.cpp
    )
 
@@ -104,7 +104,7 @@ else (MINGW)
       ${VORBIS_INCDIR}
    )
 
-   target_link_libraries(sfconvert
+   target_link_libraries(sf3convert
       ${QT_LIBRARIES}
       ${OGG_LIB}
       ${VORBIS_LIB}
@@ -112,5 +112,5 @@ else (MINGW)
       ${SNDFILE_LIB}
    )
 
-   install(TARGETS sfconvert RUNTIME DESTINATION bin)
+   install(TARGETS sf3convert RUNTIME DESTINATION bin)
 endif (MINGW)
