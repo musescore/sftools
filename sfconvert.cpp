@@ -38,8 +38,8 @@ static void usage(const char* pname)
       fprintf(stderr, "   -z     compress sf\n");
       fprintf(stderr, "   -q qq  ogg quality\n");
       fprintf(stderr, "   -a nn  amplification in dB before ogg compression\n");
-      fprintf(stderr, "   -x     xml ouput\n");
-      fprintf(stderr, "   -c     c ouput\n");
+      fprintf(stderr, "   -x     xml output\n");
+      fprintf(stderr, "   -c     c output\n");
       fprintf(stderr, "   -p nn  preset\n");
       fprintf(stderr, "   -d     dump presets\n");
       fprintf(stderr, "   -s     create small sf (one instrument/preset), pan to 0\n");
