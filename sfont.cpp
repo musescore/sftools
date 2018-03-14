@@ -1199,8 +1199,7 @@ int SoundFont::writeCompressedSample(Sample* s)
       vorbis_comment_init(&vc);
       vorbis_analysis_init(&vd, &vi);
       vorbis_block_init(&vd, &vb);
-      srand(time(NULL));
-      ogg_stream_init(&os, rand());
+      ogg_stream_init(&os, 0);
 
       ogg_packet header;
       ogg_packet header_comm;
