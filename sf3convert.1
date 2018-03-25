@@ -1,0 +1,85 @@
+.\" Copyright © 2018 mirabilos <tg@debian.org>
+.\"
+.\" This manual page is provided under the same terms as the tool it describes.
+.Dd March 5, 2018
+.Dt SF3CONVERT 1
+.Os Debian
+.Sh NAME
+.Nm sf3convert
+.Nd SoundFont conversion utility
+.Sh SYNOPSIS
+.Nm
+.Op Fl cdsxz
+.Op Fl a Ar ampl
+.Op Fl p Ar pres
+.Op Fl q Ar qual
+.Ar infile
+.Op Ar outfile
+.Sh DESCRIPTION
+The
+.Nm
+utility converts an SF2 format SoundFont; it can compress it
+into SF3, encode as C for embedding into a binary, or as XML.
+.Pp
+The options are as follows:
+.Bl -tag -width xxx
+.It Fl a Ar ampl
+Set the pre-compression amplification to
+.Ar ampl
+.Pq default \-1.0
+dB.
+.It Fl c
+Output C code.
+.It Fl d
+Dump presets.
+.It Fl p Ar pres
+Append
+.Ar pres
+to the list of presets.
+.It Fl q Ar qual
+Set the Vorbis quality to
+.Ar qual
+.Pq default 0.3 .
+.It Fl s
+Create a small soundfont (one instrument/preset), pan to 0.
+.It Fl x
+Output XML.
+.It Fl z
+Compress the soundfont.
+.El
+.Pp
+The
+.Fl c ,
+.Fl d
+and
+.Fl z
+options are mutually exclusive.
+XML output needs
+.Fl z
+but does not seem to compress.
+.Sh CAVEATS
+Raising the quality to 0.6 might be necessary to avoid artifacts;
+this however increases the size of the generated SF3 by about a third
+(to about fifteen percent of the SF2 size).
+.Pp
+There is no formal specification of the SF3 format yet.
+Differences:
+.Bl -bullet
+.It
+The samples' waveform data is stored using the OGG container
+format with the Vorbis codec.
+(Other codecs supporting the OGG container could be used,
+but the current code uses OGG Vorbis.)
+.It
+Loop start and end are stored based on the beginning of the
+corresponding sample, not based on the beginning of the
+.Li smpl
+chunk.
+.It
+24-bit mode is disabled.
+.It
+Sample links are removed.
+.El
+.Pp
+Note that this list is
+.Em incomplete .

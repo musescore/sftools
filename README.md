@@ -1,4 +1,4 @@
-### sfconvert
+### sf3convert
 
 Utilities for SoundFont files.
 
@@ -23,7 +23,7 @@ $ make release
 
 This compresses the Fluid sound font from 148 MBytes to 20 MBytes.
 
-    sfconvert -z FluidR3.SF2 mops.sf3
+    sf3convert -z FluidR3.SF2 mops.sf3
 
 **The compressed sound font has the major version number 3. Its non standard
 and can be used only (so far) by [MuseScore](http://musescore.org).**

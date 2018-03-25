@@ -11,8 +11,9 @@
 #  the file LICENSE.GPL
 #=============================================================================
 
-project(sfconvert)
+project(sf3convert)
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6.0)
+include (GNUInstallDirs)
 include (${PROJECT_SOURCE_DIR}/build/FindQt5.cmake)
 include (${PROJECT_SOURCE_DIR}/build/UsePkgConfig1.cmake)
 # set(CMAKE_VERBOSE_MAKEFILE ON)
@@ -20,18 +21,21 @@ include (${PROJECT_SOURCE_DIR}/build/UsePkgConfig1.cmake)
 set(QT_MIN_VERSION    "5.6")
 set(QT_USE_QTXML         TRUE)
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+
+# distributions might need to override these
 if (MINGW)
-      set(CMAKE_CXX_FLAGS   "-g -std=c++0x")
+      set(CMAKE_CXX_FLAGS   "${CMAKE_CXX_FLAGS} -g")
 else (MINGW)
-      set(CMAKE_CXX_FLAGS   "-g -std=c++0x -fPIC -fPIE")
+      set(CMAKE_CXX_FLAGS   "${CMAKE_CXX_FLAGS} -g -fPIC -fPIE")
 endif (MINGW)
 
-add_executable(sfconvert
+add_executable(sf3convert
    sfconvert.cpp sfont.cpp xml.cpp
    )
 
 if (MINGW)
-   target_link_libraries(sfconvert
+   target_link_libraries(sf3convert
       ${QT_LIBRARIES}
       vorbis
       ##vorbisfile
@@ -39,7 +43,7 @@ if (MINGW)
       sndfile-1
    )
 
-   install( TARGETS sfconvert RUNTIME DESTINATION . )
+   install( TARGETS sf3convert RUNTIME DESTINATION . )
 
    install_files ( . .dll
       ${CROSS}/bin/libgcc_s_dw2-1.dll
@@ -101,11 +105,14 @@ else (MINGW)
       ${VORBIS_INCDIR}
    )
 
-   target_link_libraries(sfconvert
+   target_link_libraries(sf3convert
       ${QT_LIBRARIES}
       ${OGG_LIB}
       ${VORBIS_LIB}
       vorbisenc
       ${SNDFILE_LIB}
    )
+
+   install(TARGETS sf3convert RUNTIME DESTINATION bin)
+   install(FILES sf3convert.1 DESTINATION ${CMAKE_INSTALL_MANDIR}/man1 COMPONENT doc)
 endif (MINGW)
