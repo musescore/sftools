@@ -12,6 +12,7 @@
 .Op Fl cdsxz
 .Op Fl a Ar ampl
 .Op Fl p Ar pres
+.Op Fl S Ar number
 .Op Fl q Ar qual
 .Ar infile
 .Op Ar outfile
@@ -40,6 +41,10 @@ to the list of presets.
 Set the Vorbis quality to
 .Ar qual
 .Pq default 0.3 .
+.It Fl S Ar number
+Use
+.Ar number
+as the OGG stream serial number instead of a time-based random one.
 .It Fl s
 Create a small soundfont (one instrument/preset), pan to 0.
 .It Fl x
