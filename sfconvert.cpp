@@ -31,29 +31,31 @@
 //---------------------------------------------------------
 
 static void usage(const char* pname)
-      {
+{
       fprintf(stderr, "usage: %s [-flags] soundfont [outfile]\n", pname);
       fprintf(stderr, "   -z     compress sf\n");
       fprintf(stderr, "   -q qq  ogg quality\n");
       fprintf(stderr, "   -a nn  amplification in dB before ogg compression\n");
+      fprintf(stderr, "   -y     uncompress sf\n");
       fprintf(stderr, "   -x     xml output\n");
       fprintf(stderr, "   -c     c output\n");
       fprintf(stderr, "   -p nn  preset\n");
       fprintf(stderr, "   -d     dump presets\n");
       fprintf(stderr, "   -s     create small sf (one instrument/preset), pan to 0\n");
       fprintf(stderr, "   -S nn  ogg serial number\n");
-      }
+}
 
 //---------------------------------------------------------
 //   main
 //---------------------------------------------------------
 
 int main(int argc, char* argv[])
-      {
+{
       bool xml  = false;
       bool code = false;
       bool dump = false;
       bool compress = false;
+      bool uncompress = false;
       bool smallSf = false;
       double oggQuality = 0.3;
       double oggAmp = -1.0;
@@ -66,7 +68,7 @@ int main(int argc, char* argv[])
       fprintf(stderr, "%s: convert sound file\n", argv[0]);
 
       int c;
-      while ((c = getopt(argc, argv, "xcp:dS:szq:a:")) != EOF) {
+      while ((c = getopt(argc, argv, "xcp:dS:syzq:a:")) != EOF) {
             switch(c) {
                   case 'x':
                         xml = true;
@@ -85,6 +87,9 @@ int main(int argc, char* argv[])
                         break;
                   case 's':
                         smallSf = true;
+                        break;
+                  case 'y':
+                        uncompress = true;
                         break;
                   case 'z':
                         compress = true;
@@ -112,9 +117,13 @@ int main(int argc, char* argv[])
             usage(pname);
             exit(3);
             }
-      if (!xml && !code && !dump && !compress) {
+      if (!xml && !code && !dump && !compress && !uncompress) {
             usage(pname);
             exit(4);
+            }
+      if (compress && uncompress) {
+            usage(pname);
+            exit(5);
             }
 
       SfTools::SoundFont sf(argv[0]);
@@ -143,10 +152,22 @@ int main(int argc, char* argv[])
             if (xml)
                   sf.writeXml(&fo);
             else
-                  sf.write(&fo, oggQuality, oggAmp, oggSerial);
+                  sf.compress(&fo, oggQuality, oggAmp, oggSerial);
+            fo.close();
+            }
+      else if (uncompress) {
+            QFile fo(argv[1]);
+            if (!fo.open(QIODevice::WriteOnly)) {
+                  fprintf(stderr, "cannot open <%s>\n", argv[2]);
+                  exit(2);
+                  }
+            if (xml)
+                  sf.writeXml(&fo);
+            else
+                  sf.uncompress(&fo);
             fo.close();
             }
       qDebug("Soundfont converted in: %d ms", t.elapsed());
       return 0;
-      }
+}
 

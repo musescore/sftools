@@ -178,9 +178,10 @@ class SoundFont {
     QList<Zone*> iZones;
     QList<Sample*> samples;
 
-    QFile* file;
+    QFile* _file;
     FILE* f;
 
+    bool _compress;
     double _oggQuality;
     double _oggAmp;
     qint64 _oggSerial;
@@ -228,14 +229,17 @@ class SoundFont {
     void writeShdr();
 
     int writeCompressedSample(Sample*);
+    int writeUncompressedSample(Sample* s);
     bool writeCSample(Sample*, int);
-    char* readCompressedSample(Sample*);
+
+    bool write();
 
 public:
     SoundFont(const QString&);
     ~SoundFont();
     bool read();
-    bool write(QFile*, double oggQuality, double oggAmp, qint64 oggSerial = rand());
+    bool compress(QFile* f, double oggQuality, double oggAmp, qint64 oggSerial = rand());
+    bool uncompress(QFile* f);
     bool writeCode(QList<int>);
     bool writeCode();
     void dumpPresets();

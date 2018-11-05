@@ -38,7 +38,8 @@ if (MINGW)
    target_link_libraries(sf3convert
       ${QT_LIBRARIES}
       vorbis
-      ##vorbisfile
+      vorbisenc
+      vorbisfile
       ogg
       sndfile-1
    )
@@ -52,6 +53,8 @@ if (MINGW)
       ${CROSS}/lib/libsndfile-1.dll
       ${CROSS}/lib/libogg.dll
       ${CROSS}/lib/libvorbis.dll
+      ${CROSS}/lib/libvorbisenc.dll
+      ${CROSS}/lib/libvorbisfile.dll
       ${CROSSQT}/bin/Qt5Core.dll
       ${CROSSQT}/bin/Qt5Xml.dll
       ${CROSSQT}/bin/icuin51.dll
@@ -82,6 +85,28 @@ else (MINGW)
        message("libvorbis not found\n")
    endif (VORBIS_INCDIR)
 
+   ##
+   ## libvorbisenc
+   ##
+
+   PKGCONFIG1 (vorbisenc 1.3.3 VORBISENC_INCDIR VORBISENC_LIBDIR VORBISENC_LIB VORBISENC_CPP)
+   if (VORBISENC_INCDIR)
+       message("libvorbisenc detected ${VORBISENC_INCDIR} ${VORBISENC_LIBDIR} ${VORBISENC_LIB}")
+   else (VORBISENC_INCDIR)
+       message("libvorbisenc not found\n")
+   endif (VORBISENC_INCDIR)
+
+   ##
+   ## libvorbisfile
+   ##
+
+   PKGCONFIG1 (vorbisfile 1.3.3 VORBISFILE_INCDIR VORBISFILE_LIBDIR VORBISFILE_LIB VORBISFILE_CPP)
+   if (VORBISFILE_INCDIR)
+       message("libvorbisfile detected ${VORBISFILE_INCDIR} ${VORBISFILE_LIBDIR} ${VORBISFILE_LIB}")
+   else (VORBISFILE_INCDIR)
+       message("libvorbisfile not found\n")
+   endif (VORBISFILE_INCDIR)
+
 
    ##
    ## libogg
@@ -103,13 +128,16 @@ else (MINGW)
       ${SNDFILE_INCDIR}
       ${OGG_INCDIR}
       ${VORBIS_INCDIR}
+      ${VORBISENC_INCDIR}
+      ${VORBISFILE_INCDIR}
    )
 
    target_link_libraries(sf3convert
       ${QT_LIBRARIES}
       ${OGG_LIB}
       ${VORBIS_LIB}
-      vorbisenc
+      ${VORBISENC_LIB}
+      ${VORBISFILE_LIB}
       ${SNDFILE_LIB}
    )
 
