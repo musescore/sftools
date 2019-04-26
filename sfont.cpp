@@ -60,11 +60,6 @@ static const bool writeCompressed = true;
 //   Sample
 //---------------------------------------------------------
 
-Sample::Sample()
-      {
-      name = 0;
-      }
-
 Sample::~Sample()
       {
       free(name);
@@ -73,11 +68,6 @@ Sample::~Sample()
 //---------------------------------------------------------
 //   Instrument
 //---------------------------------------------------------
-
-Instrument::Instrument()
-      {
-      name = 0;
-      }
 
 Instrument::~Instrument()
       {
@@ -938,8 +928,7 @@ void SoundFont::writePhdr()
             writePreset(zoneIdx, p);
             zoneIdx += p->zones.size();
             }
-      Preset p;
-      memset(&p, sizeof(p), 0);
+      Preset p{};
       writePreset(zoneIdx, &p);
       }
 
@@ -949,8 +938,7 @@ void SoundFont::writePhdr()
 
 void SoundFont::writePreset(int zoneIdx, const Preset* preset)
       {
-      char name[20];
-      memset(name, 0, 20);
+      char name[20] = {0};
       if (preset->name)
             memcpy(name, preset->name, strlen(preset->name));
       write(name, 20);
@@ -1069,8 +1057,7 @@ void SoundFont::writeInst()
             writeInstrument(zoneIdx, p);
             zoneIdx += p->zones.size();
             }
-      Instrument p;
-      memset(&p, sizeof(p), 0);
+      Instrument p{};
       writeInstrument(zoneIdx, &p);
       }
 
@@ -1080,8 +1067,7 @@ void SoundFont::writeInst()
 
 void SoundFont::writeInstrument(int zoneIdx, const Instrument* instrument)
       {
-      char name[20];
-      memset(name, 0, 20);
+      char name[20] = {0};
       if (instrument->name)
             memcpy(name, instrument->name, strlen(instrument->name));
       write(name, 20);
@@ -1098,8 +1084,7 @@ void SoundFont::writeShdr()
       writeDword(46 * (samples.size() + 1));
       foreach(const Sample* s, samples)
             writeSample(s);
-      Sample s;
-      memset(&s, 0, sizeof(s));
+      Sample s{};
       writeSample(&s);
       }
 
@@ -1109,8 +1094,7 @@ void SoundFont::writeShdr()
 
 void SoundFont::writeSample(const Sample* s)
       {
-      char name[20];
-      memset(name, 0, 20);
+      char name[20] = {0};
       if (s->name)
             memcpy(name, s->name, strlen(s->name));
       write(name, 20);
