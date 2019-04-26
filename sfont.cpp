@@ -25,6 +25,7 @@
 #include <math.h>
 #include <sndfile.h>
 #include <vorbis/vorbisenc.h>
+#include <vector>
 
 #include "sfont.h"
 #include "xml.h"
@@ -899,7 +900,7 @@ void SoundFont::writeSmpl()
                   }
             }
       else {
-            char* buffer = new char[sampleLen];
+            std::vector<char> buffer(sampleLen);
             QFile f(path);
             if (!f.open(QIODevice::ReadOnly))
                   throw(QString("cannot open <%1>").arg(f.fileName()));
@@ -907,8 +908,8 @@ void SoundFont::writeSmpl()
                   f.seek(samplePos + s->start * sizeof(short));
 
                   int len = (s->end - s->start) * sizeof(short);
-                  f.read(buffer, len);
-                  write(buffer, len);
+                  f.read(buffer.data(), len);
+                  write(buffer.data(), len);
                   s->start = sampleLen / sizeof(short);
                   sampleLen += len;
                   s->end = sampleLen / sizeof(short);
@@ -916,7 +917,6 @@ void SoundFont::writeSmpl()
                   s->loopend   += s->start;
                   }
             f.close();
-            delete[] buffer;
             }
       qint64 npos = file->pos();
       file->seek(pos);
@@ -1140,8 +1140,8 @@ bool SoundFont::writeSampleFile(Sample* s, QString name)
             }
       f.seek(samplePos + s->start * sizeof(short));
       int len = s->end - s->start;
-      short buffer[len];
-      f.read((char*)buffer, len * sizeof(short));
+      std::vector<short> buffer(len);
+      f.read((char*)buffer.data(), len * sizeof(short));
       f.close();
 
       // int format = SF_FORMAT_WAV | SF_FORMAT_PCM_16;
@@ -1160,7 +1160,7 @@ bool SoundFont::writeSampleFile(Sample* s, QString name)
             return false;
             }
 
-      sf_write_short(sf, buffer, len);
+      sf_write_short(sf, buffer.data(), len);
 
       if (sf_close(sf)) {
             fprintf(stderr, "close soundfile failed\n");
@@ -1182,8 +1182,8 @@ int SoundFont::writeCompressedSample(Sample* s)
             }
       f.seek(samplePos + s->start * sizeof(short));
       int samples = s->end - s->start;
-      short ibuffer[samples];
-      f.read((char*)ibuffer, samples * sizeof(short));
+      std::vector<short> ibuffer(samples);
+      f.read((char*)ibuffer.data(), samples * sizeof(short));
       f.close();
 
       ogg_stream_state os;
@@ -1215,17 +1215,14 @@ int SoundFont::writeCompressedSample(Sample* s)
       ogg_stream_packetin(&os, &header_comm);
       ogg_stream_packetin(&os, &header_code);
 
-      char obuf[1024 * 1024];
-      char* p = obuf;
+      std::vector<char> obuf{};
 
       for (;;) {
             int result = ogg_stream_flush(&os, &og);
             if (result == 0)
                   break;
-            memcpy(p, og.header, og.header_len);
-            p += og.header_len;
-            memcpy(p, og.body, og.body_len);
-            p += og.body_len;
+            obuf.insert(obuf.end(), og.header, og.header + og.header_len);
+            obuf.insert(obuf.end(), og.body, og.body + og.body_len);
             }
 
       long i;
@@ -1254,10 +1251,8 @@ int SoundFont::writeCompressedSample(Sample* s)
                               int result = ogg_stream_pageout(&os, &og);
                               if (result == 0)
                                     break;
-                              memcpy(p, og.header, og.header_len);
-                              p += og.header_len;
-                              memcpy(p, og.body, og.body_len);
-                              p += og.body_len;
+                              obuf.insert(obuf.end(), og.header, og.header + og.header_len);
+                              obuf.insert(obuf.end(), og.body, og.body + og.body_len);
                               }
                         }
                   }
@@ -1279,10 +1274,8 @@ int SoundFont::writeCompressedSample(Sample* s)
                         int result = ogg_stream_pageout(&os, &og);
                         if (result == 0)
                               break;
-                        memcpy(p, og.header, og.header_len);
-                        p += og.header_len;
-                        memcpy(p, og.body, og.body_len);
-                        p += og.body_len;
+                        obuf.insert(obuf.end(), og.header, og.header + og.header_len);
+                        obuf.insert(obuf.end(), og.body, og.body + og.body_len);
                         }
                   }
             }
@@ -1293,10 +1286,9 @@ int SoundFont::writeCompressedSample(Sample* s)
       vorbis_comment_clear(&vc);
       vorbis_info_clear(&vi);
 
-      int n = p - obuf;
-      write(obuf, n);
+      write(obuf.data(), obuf.size());
 
-      return n;
+      return obuf.size();
       }
 
 //---------------------------------------------------------
@@ -1321,8 +1313,8 @@ bool SoundFont::writeCSample(Sample* s, int idx)
             }
       fi.seek(samplePos + s->start * sizeof(short));
       int samples = s->end - s->start;
-      short ibuffer[samples];
-      fi.read((char*)ibuffer, samples * sizeof(short));
+      std::vector<short> ibuffer(samples);
+      fi.read((char*)ibuffer.data(), samples * sizeof(short));
       fi.close();
 
       fprintf(f, "static const short wave%d[] = {\n      ", idx);
