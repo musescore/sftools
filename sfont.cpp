@@ -387,6 +387,9 @@ void SoundFont::readSection(const char* fourcc, int len)
                   sampleLen = len;
                   skip(len);
                   break;
+            case FOURCC('s','m','2','4'): // 24-bit sample LSBs
+                  skip(len);
+                  break;
             case FOURCC('p','h','d','r'): // preset headers
                   readPhdr(len);
                   break;
