@@ -1341,7 +1341,6 @@ static bool checkInstrument(QList<int> pnums, QList<Preset*> presets, int instrI
       }
 
 static bool checkInstrument(QList<Preset*> presets, int instrIdx) {
-      bool result = false;
       for(int i = 0; i < presets.size(); i++) {
             Preset* p = presets[i];
             Zone* z = p->zones[0];
@@ -1368,7 +1367,6 @@ static bool checkSample(QList<int> pnums, QList<Preset*> presets, QList<Instrume
                   ++idx;
                   continue;
                   }
-            int zones = instrument->zones.size();
             foreach(Zone* z, instrument->zones) {
                   QList<GeneratorList*> gl;
                   foreach(GeneratorList* g, z->generators) {
@@ -1396,7 +1394,6 @@ static bool checkSample(QList<Preset*> presets, QList<Instrument*> instruments,
                   ++idx;
                   continue;
                   }
-            int zones = instrument->zones.size();
             foreach(Zone* z, instrument->zones) {
                   QList<GeneratorList*> gl;
                   foreach(GeneratorList* g, z->generators) {
@@ -1501,7 +1498,6 @@ bool SoundFont::writeCode()
 
                   QList<GeneratorList*> gl;
                   foreach(GeneratorList* g, z->generators) {
-                        const char* name = generatorNames[g->gen];
                         if (g->gen == Gen_KeyRange) {
                               keyLo = g->amount.lo;
                               keyHi = g->amount.hi;
@@ -1584,7 +1580,6 @@ bool SoundFont::writeCode()
                   int instrIdx = -1;
 
                   foreach(GeneratorList* g, z->generators) {
-                        const char* name = generatorNames[g->gen];
                         if (g->gen == Gen_KeyRange) {
                               keyLo = g->amount.lo;
                               keyHi = g->amount.hi;
@@ -1709,7 +1704,6 @@ bool SoundFont::writeCode(QList<int> pnums)
                   QList<GeneratorList*> gl;
 
                   foreach(GeneratorList* g, z->generators) {
-                        const char* name = generatorNames[g->gen];
                         if (g->gen == Gen_KeyRange) {
                               keyLo = g->amount.lo;
                               keyHi = g->amount.hi;
@@ -1781,7 +1775,6 @@ bool SoundFont::writeCode(QList<int> pnums)
                   int veloHi   = 127;
                   int instrIdx = -1;
                   foreach(GeneratorList* g, z->generators) {
-                        const char* name = generatorNames[g->gen];
                         if (g->gen == Gen_KeyRange) {
                               keyLo = g->amount.lo;
                               keyHi = g->amount.hi;
