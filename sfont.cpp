@@ -338,12 +338,12 @@ void SoundFont::readVersion()
 
 char* SoundFont::readString(int n)
       {
-      char data[2500];
-      if (file->read((char*)data, n) != n)
+      char *data = (char*)malloc(n+1);
+      if (file->read(data, n) != n)
             throw(QString("unexpected end of file\n"));
       if (data[n-1] != 0)
             data[n] = 0;
-      return strdup(data);
+      return data;
       }
 
 //---------------------------------------------------------
