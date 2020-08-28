@@ -10,7 +10,7 @@ Utilities for SoundFont files.
 #### Dependencies
 
 * Qt >= 5.6
-* libsdnfile
+* libsndfile
 * libogg
 * libvorbis
 
