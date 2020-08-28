@@ -82,7 +82,6 @@ else (MINGW)
        message("libvorbis not found\n")
    endif (VORBIS_INCDIR)
 
-
    ##
    ## libogg
    ##

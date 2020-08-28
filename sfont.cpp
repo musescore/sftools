@@ -1432,7 +1432,6 @@ static bool checkSample(QList<Preset*> presets, QList<Instrument*> instruments,
       return false;
       }
 
-
 //---------------------------------------------------------
 //   writeCode
 //---------------------------------------------------------
@@ -1651,7 +1650,6 @@ bool SoundFont::writeCode()
             ++idx;
             }
 
-
       fprintf(f, "static Preset* sfPresets[%d] = {\n", presets.size());
       for(int idx = 0; idx < presets.size(); ++idx)
             fprintf(f, "      &preset%d,   // %s\n", idx, presets[idx]->name);
@@ -1663,8 +1661,6 @@ bool SoundFont::writeCode()
       fclose(f);
       return true;
       }
-
-
 
 //---------------------------------------------------------
 //   writeCode
@@ -1868,5 +1864,3 @@ void SoundFont::dumpPresets()
             ++idx;
             }
       }
-
-

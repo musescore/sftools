@@ -241,4 +241,3 @@ class SoundFont {
       void dumpPresets();
       };
 #endif
-

@@ -18,7 +18,6 @@
 #  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #=============================================================================
 
-
 REVISION  = $(shell type mscore\revision.h)
 VERSION   = 1.0b-${REVISION}
 CPUS = 2
@@ -53,5 +52,3 @@ version:
 
 clean:
 	-rmdir /S/Q build.debug build.release win32install
-
-

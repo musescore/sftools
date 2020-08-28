@@ -148,4 +148,3 @@ int main(int argc, char* argv[])
       qDebug("Soundfont converted in: %d ms", t.elapsed());
       return 0;
       }
-

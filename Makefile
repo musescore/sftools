@@ -40,5 +40,3 @@ version:
 
 clean:
 	rm -rf build.debug build.release
-
-

@@ -87,9 +87,9 @@ void Xml::tagE(const char* format, ...)
       va_start(args, format);
       putLevel();
       *this << '<';
-    	char buffer[BS];
+      char buffer[BS];
       vsnprintf(buffer, BS, format, args);
-    	*this << buffer;
+      *this << buffer;
       va_end(args);
       *this << "/>" << endl;
       }
@@ -267,5 +267,3 @@ void Xml::writeHtml(const QString& s)
       for (int i = 1; i < sl.size(); ++i)
             *this << sl[i] << "\n";
       }
-
-

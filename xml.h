@@ -60,4 +60,3 @@ extern QString docName;
 extern void domError(const QDomElement&);
 extern void domNotImplemented(const QDomElement&);
 #endif
-
