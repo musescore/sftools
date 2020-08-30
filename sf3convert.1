@@ -9,7 +9,7 @@
 .Nd SoundFont conversion utility
 .Sh SYNOPSIS
 .Nm
-.Op Fl cdsxz
+.Op Fl cdsxyz
 .Op Fl a Ar ampl
 .Op Fl p Ar pres
 .Op Fl S Ar number
@@ -20,7 +20,8 @@
 The
 .Nm
 utility converts an SF2 format SoundFont; it can compress it
-into SF3, encode as C for embedding into a binary, or as XML.
+into SF3, uncompress from SF3, encode as C for embedding into a binary,
+or as XML.
 .Pp
 The options are as follows:
 .Bl -tag -width xxx
@@ -49,13 +50,16 @@ as the OGG stream serial number instead of a time-based random one.
 Create a small soundfont (one instrument/preset), pan to 0.
 .It Fl x
 Output XML.
+.It Fl y
+Uncompress the soundfont.
 .It Fl z
 Compress the soundfont.
 .El
 .Pp
 The
 .Fl c ,
-.Fl d
+.Fl d ,
+.Fl y
 and
 .Fl z
 options are mutually exclusive.

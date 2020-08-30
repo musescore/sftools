@@ -1,9 +1,19 @@
-### sf3convert
+# sf3convert
 
-Utilities for SoundFont files.
+Utilities for converting Soundfont files from version 2 to version 3 and back from version 3 to version 2.
 
-* compress sound font files with ogg vorbis for use with [MuseScore](http://musescore.org)
-* convert to "C" for embedding
+### Sf3 format
+
+The sf3 format stores compressed data (OGG vorbis files) instead of raw data (WAVE) in a soundfont. There is thus a **loss in quality** but the resulting files are lighter and more prone to be **embedded**. This format has been primarily designed and used by [MuseScore](http://musescore.org) and is now supported by other projects:
+
+* [Calf-Fluidsynth](http://calf-studio-gear.org/)
+* [Carla](http://kxstudio.linuxaudio.org/Applications:Carla)
+* [LMMS](https://lmms.io)
+* [Polyphone](https://www.polyphone-soundfonts.com)
+* [Qsynth](https://qsynth.sourceforge.io)
+* [Qtractor](https://qtractor.sourceforge.io)
+
+**The compressed soundfont has the major version number 3. It is non standard and no specifications have been written yet**
 
 
 ### Compilation
@@ -14,6 +24,8 @@ Utilities for SoundFont files.
 * libsdnfile
 * libogg
 * libvorbis
+* libvorbisenc
+* libvorbisfile
 
 ```
 $ make release
@@ -21,14 +33,10 @@ $ make release
 
 ### Usage Example:
 
-This compresses the Fluid sound font from 148 MBytes to 20 MBytes.
+This compresses the Fluid soundfont from 148 MBytes to 20 MBytes.
 
-    sf3convert -z FluidR3.SF2 mops.sf3
+    sf3convert -z FluidR3.SF2 compressed_soundfont.sf3
 
-**The compressed sound font has the major version number 3. Its non standard
-and can be used only (so far) by [MuseScore](http://musescore.org).**
+This uncompresses a soundfont
 
-
-### TODO:
-Stereo samples are compressed as two single streams instead of compressing
-them as stereo ogg vorbis streams. This may be less optimal.
+    sf3convert -y compressed_soundfont.sf3 FluidR3.sf2

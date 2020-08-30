@@ -18,14 +18,16 @@
 //  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 //=============================================================================
 
-#ifndef __SOUNDFONT_H__
-#define __SOUNDFONT_H__
+#ifndef SFONT_H
+#define SFONT_H
 
 #include <QtCore/QString>
 #include <QtCore/QList>
 
 class Xml;
 class QFile;
+
+namespace SfTools {
 
 //---------------------------------------------------------
 //   sfVersionTag
@@ -105,14 +107,16 @@ struct Zone {
 //---------------------------------------------------------
 
 struct Preset {
-      char* name         {0};
-      int preset         {0};
-      int bank           {0};
-      int presetBagNdx   {0}; // used only for read
-      int library        {0};
-      int genre          {0};
-      int morphology     {0};
+      char* name;
+      int preset;
+      int bank;
+      int presetBagNdx; // used only for read
+      int library;
+      int genre;
+      int morphology;
       QList<Zone*> zones;
+
+      Preset():name(nullptr), preset(0), bank(0), presetBagNdx(0), library(0), genre(0), morphology(0) {}
       };
 
 //---------------------------------------------------------
@@ -142,6 +146,7 @@ struct Sample {
 
       int origpitch;
       int pitchadj;
+      int sampleLink;
       int sampletype;
 
       Sample();
@@ -163,6 +168,8 @@ class SoundFont {
       char* creator;
       char* product;
       char* copyright;
+      char* irom;
+      sfVersionTag iver;
 
       int samplePos;
       int sampleLen;
@@ -177,9 +184,13 @@ class SoundFont {
       QFile* file;
       FILE* f;
 
+      bool _compress;
       double _oggQuality;
       double _oggAmp;
       qint64 _oggSerial;
+
+      // Extra option
+      bool _smallSf;
 
       unsigned readDword();
       int readWord();
@@ -192,7 +203,7 @@ class SoundFont {
       void readSignature(char* signature);
       void skip(int);
       void readSection(const char* fourcc, int len);
-      void readVersion();
+      void readVersion(sfVersionTag* v);
       char* readString(int);
       void readPhdr(int);
       void readBag(int, QList<Zone*>*);
@@ -207,8 +218,6 @@ class SoundFont {
       void writeChar(char);
       void writeShort(short);
       void write(const char* p, int n);
-      void write(Xml&, Zone*);
-      bool writeSampleFile(Sample*, QString);
       void writeSample(const Sample*);
       void writeStringSection(const char* fourcc, char* s);
       void writePreset(int zoneIdx, const Preset*);
@@ -217,6 +226,7 @@ class SoundFont {
       void writeInstrument(int zoneIdx, const Instrument*);
 
       void writeIfil();
+      void writeIver();
       void writeSmpl();
       void writePhdr();
       void writeBag(const char* fourcc, QList<Zone*>*);
@@ -226,19 +236,30 @@ class SoundFont {
       void writeShdr();
 
       int writeCompressedSample(Sample*);
+      int writeUncompressedSample(Sample* s);
       bool writeCSample(Sample*, int);
-      char* readCompressedSample(Sample*);
+      bool write();
 
    public:
       SoundFont(const QString&);
       ~SoundFont();
       bool read();
-      bool write(QFile*, double oggQuality, double oggAmp, qint64 oggSerial);
-      bool readXml(QFile*);
-      bool writeXml(QFile*);
+      bool compress(QFile* f, double oggQuality, double oggAmp, qint64 oggSerial = rand());
+      bool uncompress(QFile* f);
       bool writeCode(QList<int>);
       bool writeCode();
       void dumpPresets();
-      };
+
+#ifndef SFTOOLS_NOXML
+    private:
+      void write(Xml&, Zone*);
+      bool writeSampleFile(Sample*, QString);
+
+    public:
+      bool readXml(QFile*);
+      bool writeXml(QFile*);
+#endif
+};
+}
 #endif
 
