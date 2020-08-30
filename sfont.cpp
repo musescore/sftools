@@ -1097,7 +1097,7 @@ int SoundFont::writeCompressedSample(Sample* s)
       ogg_stream_packetin(&os, &header_comm);
       ogg_stream_packetin(&os, &header_code);
 
-      char obuf[1048576]; // 1024 * 1024
+      char* obuf = new char[1048576]; // 1024 * 1024
       char* p = obuf;
 
       for (;;) {
@@ -1178,6 +1178,7 @@ int SoundFont::writeCompressedSample(Sample* s)
       int n = p - obuf;
       write(obuf, n);
 
+      delete [] obuf;
       delete [] ibuffer;
       return n;
       }
@@ -1875,7 +1876,7 @@ bool SoundFont::writeSampleFile(Sample* s, QString name)
             }
       f.seek(samplePos + s->start * sizeof(short));
       int len = s->end - s->start;
-      short buffer[len];
+      short * buffer = new short[len];
       f.read((char*)buffer, len * sizeof(short));
       f.close();
 
@@ -1892,10 +1893,12 @@ bool SoundFont::writeSampleFile(Sample* s, QString name)
       if (sf == 0) {
             fprintf(stderr, "open soundfile <%s> failed: %s\n",
                qPrintable(path), sf_strerror(sf));
+            delete [] buffer;
             return false;
             }
 
       sf_write_short(sf, buffer, len);
+      delete [] buffer;
 
       if (sf_close(sf)) {
             fprintf(stderr, "close soundfile failed\n");
@@ -2048,3 +2051,4 @@ int SoundFont::writeUncompressedSample(Sample* s)
     delete[] ibuffer;
     return length;
 }
+
