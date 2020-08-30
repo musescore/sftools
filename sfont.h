@@ -18,8 +18,8 @@
 //  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 //=============================================================================
 
-#ifndef __SOUNDFONT_H__
-#define __SOUNDFONT_H__
+#ifndef SFONT_H
+#define SFONT_H
 
 #include <QtCore/QString>
 #include <QtCore/QList>
@@ -116,7 +116,7 @@ struct Preset {
       int morphology;
       QList<Zone*> zones;
 
-      Preset():name(0), preset(0), bank(0), presetBagNdx(0), library(0), genre(0), morphology(0) {}
+      Preset():name(nullptr), preset(0), bank(0), presetBagNdx(0), library(0), genre(0), morphology(0) {}
       };
 
 //---------------------------------------------------------
@@ -168,6 +168,8 @@ class SoundFont {
       char* creator;
       char* product;
       char* copyright;
+      char* irom;
+      sfVersionTag iver;
 
       int samplePos;
       int sampleLen;
@@ -182,9 +184,13 @@ class SoundFont {
       QFile* file;
       FILE* f;
 
+      bool _compress;
       double _oggQuality;
       double _oggAmp;
       qint64 _oggSerial;
+
+      // Extra option
+      bool _smallSf;
 
       unsigned readDword();
       int readWord();
@@ -197,7 +203,7 @@ class SoundFont {
       void readSignature(char* signature);
       void skip(int);
       void readSection(const char* fourcc, int len);
-      void readVersion();
+      void readVersion(sfVersionTag* v);
       char* readString(int);
       void readPhdr(int);
       void readBag(int, QList<Zone*>*);
@@ -220,6 +226,7 @@ class SoundFont {
       void writeInstrument(int zoneIdx, const Instrument*);
 
       void writeIfil();
+      void writeIver();
       void writeSmpl();
       void writePhdr();
       void writeBag(const char* fourcc, QList<Zone*>*);
@@ -242,10 +249,6 @@ class SoundFont {
       bool writeCode(QList<int>);
       bool writeCode();
       void dumpPresets();
-      };
-
-      // Extra option
-      bool smallSf;
 
 #ifndef SFTOOLS_NOXML
     private:
@@ -256,6 +259,7 @@ class SoundFont {
       bool readXml(QFile*);
       bool writeXml(QFile*);
 #endif
+};
 }
 #endif
 
