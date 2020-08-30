@@ -229,14 +229,16 @@ class SoundFont {
       void writeShdr();
 
       int writeCompressedSample(Sample*);
+      int writeUncompressedSample(Sample* s);
       bool writeCSample(Sample*, int);
-      char* readCompressedSample(Sample*);
+      bool write();
 
    public:
       SoundFont(const QString&);
       ~SoundFont();
       bool read();
-      bool write(QFile*, double oggQuality, double oggAmp, qint64 oggSerial);
+      bool compress(QFile* f, double oggQuality, double oggAmp, qint64 oggSerial = rand());
+      bool uncompress(QFile* f);
       bool writeCode(QList<int>);
       bool writeCode();
       void dumpPresets();

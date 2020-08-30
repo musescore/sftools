@@ -24,6 +24,8 @@
 #include <string.h>
 #include <math.h>
 #include <vorbis/vorbisenc.h>
+#include <vorbis/codec.h>
+#include <vorbis/vorbisfile.h>
 
 #include "sfont.h"
 #include "time.h"
@@ -391,6 +393,9 @@ void SoundFont::readSection(const char* fourcc, int len)
                   sampleLen = len;
                   skip(len);
                   break;
+            case FOURCC('s','m','2','4'): // audio samples (24-bit part)
+                  skip(len); // Just skip it
+                  break;
             case FOURCC('p','h','d','r'): // preset headers
                   readPhdr(len);
                   break;
@@ -603,8 +608,6 @@ void SoundFont::readShdr(int size)
             s->sampleLink = readWord();
             s->sampletype = readWord();
 
-            s->loopstart -= s->start;
-            s->loopend   -= s->start;
 // printf("readFontHeader %d %d   %d %d\n", s->start, s->end, s->loopstart, s->loopend);
             samples.append(s);
             }
@@ -615,12 +618,8 @@ void SoundFont::readShdr(int size)
 //   write
 //---------------------------------------------------------
 
-bool SoundFont::write(QFile* f, double oggQuality, double oggAmp, qint64 oggSerial)
+bool SoundFont::write()
       {
-      file = f;
-      _oggQuality = oggQuality;
-      _oggAmp = oggAmp;
-      _oggSerial = oggSerial;
       qint64 riffLenPos;
       qint64 listLenPos;
       try {
@@ -698,6 +697,24 @@ bool SoundFont::write(QFile* f, double oggQuality, double oggAmp, qint64 oggSeri
       return true;
       }
 
+bool SoundFont::compress(QFile* f, double oggQuality, double oggAmp, qint64 oggSerial)
+      {
+      file = f;
+      _compress = true;
+      _oggQuality = oggQuality;
+      _oggAmp = oggAmp;
+      _oggSerial = oggSerial;
+
+      return write();
+      }
+
+bool SoundFont::uncompress(QFile* f)
+      {
+      file = f;
+      _compress = false;
+      return write();
+      }
+
 //---------------------------------------------------------
 //   write
 //---------------------------------------------------------
@@ -734,8 +751,13 @@ void SoundFont::writeIfil()
       write("ifil", 4);
       writeDword(4);
       unsigned char data[4];
-      if (writeCompressed)
+      if (_compress) {
             version.major = 3;
+            version.minor = 0;
+      } else {
+            version.major = 2;
+            version.minor = 1;
+      }
       data[0] = version.major;
       data[1] = version.major >> 8;
       data[2] = version.minor;
@@ -753,35 +775,36 @@ void SoundFont::writeSmpl()
 
       qint64 pos = file->pos();
       writeDword(0);
-      int sampleLen = 0;
-      if (writeCompressed) {
+      int currentSamplePos = 0;
+      if (_compress) {
+            // Compress wave data
             foreach(Sample* s, samples) {
+                  // Loop start and end are now based on the beginning of each sample
+                  s->loopstart -= s->start;
+                  s->loopend -= s->start;
+
+                  // OGG flag added
                   s->sampletype |= 0x10;
-                  int len  = writeCompressedSample(s);
-                  s->start = sampleLen;
-                  sampleLen += len;
-                  s->end = sampleLen;
+                  int len  = writeCompressedSample(s); // In byte
+                  s->start = currentSamplePos;
+                  currentSamplePos += len;
+                  s->end = currentSamplePos;
                   }
             }
       else {
-            char* buffer = new char[sampleLen];
-            QFile f(path);
-            if (!f.open(QIODevice::ReadOnly))
-                  throw(QString("cannot open <%1>").arg(f.fileName()));
+            // Uncompress from OGG data
             foreach(Sample* s, samples) {
-                  f.seek(samplePos + s->start * sizeof(short));
+                  // OGG flag is removed
+                  s->sampletype &= ~0x10;
+                  int len = writeUncompressedSample(s) / 2; // In sample data points (16 bits)
+                  s->start = currentSamplePos;
+                  currentSamplePos += len;
+                  s->end = currentSamplePos;
 
-                  int len = (s->end - s->start) * sizeof(short);
-                  f.read(buffer, len);
-                  write(buffer, len);
-                  s->start = sampleLen / sizeof(short);
-                  sampleLen += len;
-                  s->end = sampleLen / sizeof(short);
+                  // Loop start and end are now based on the beginning of the section "smpl"
                   s->loopstart += s->start;
                   s->loopend   += s->start;
                   }
-            f.close();
-            delete[] buffer;
             }
       qint64 npos = file->pos();
       file->seek(pos);
@@ -1030,6 +1053,9 @@ int SoundFont::writeCompressedSample(Sample* s)
       ogg_packet header_comm;
       ogg_packet header_code;
 
+      // Keep a track of the attenuation used before the compression
+      vorbis_comment_add(&vc, QString("AMP=%0\0").arg(_oggAmp).toStdString().c_str());
+
       vorbis_analysis_headerout(&vd, &vc, &header, &header_comm, &header_code);
       ogg_stream_packetin(&os, &header);
       ogg_stream_packetin(&os, &header_comm);
@@ -1118,16 +1144,6 @@ int SoundFont::writeCompressedSample(Sample* s)
 
       delete [] ibuffer;
       return n;
-      }
-
-//---------------------------------------------------------
-//   readCompressedSample
-//---------------------------------------------------------
-
-char* SoundFont::readCompressedSample(Sample* s)
-      {
-      Q_UNUSED(s)
-      return 0;
       }
 
 //---------------------------------------------------------
@@ -1714,7 +1730,7 @@ static const char* generatorNames[] = {
       "Reserved3", "ScaleTune", "ExclusiveClass", "OverrideRootKey",
       "Dummy"
       };
-      
+
 //---------------------------------------------------------
 //   writeXml
 //---------------------------------------------------------
@@ -1874,3 +1890,129 @@ bool SoundFont::readXml(QFile* f)
       return true;
       }
 #endif
+
+
+struct VorbisData {
+    int pos;
+    QByteArray data;
+};
+
+static VorbisData vorbisData;
+static size_t ovRead(void* ptr, size_t size, size_t nmemb, void* datasource);
+static int ovSeek(void* datasource, ogg_int64_t offset, int whence);
+static long ovTell(void* datasource);
+static ov_callbacks ovCallbacks = { ovRead, ovSeek, 0, ovTell };
+
+//---------------------------------------------------------
+//   ovRead
+//---------------------------------------------------------
+
+static size_t ovRead(void* ptr, size_t size, size_t nmemb, void* datasource)
+{
+    VorbisData* vd = (VorbisData*)datasource;
+    size_t n = size * nmemb;
+    if (vd->data.size() < int(vd->pos + n))
+        n = vd->data.size() - vd->pos;
+    if (n) {
+        const char* src = vd->data.data() + vd->pos;
+        memcpy(ptr, src, n);
+        vd->pos += n;
+    }
+
+    return n;
+}
+
+//---------------------------------------------------------
+//   ovSeek
+//---------------------------------------------------------
+
+static int ovSeek(void* datasource, ogg_int64_t offset, int whence)
+{
+    VorbisData* vd = (VorbisData*)datasource;
+    switch(whence) {
+    case SEEK_SET:
+        vd->pos = offset;
+        break;
+    case SEEK_CUR:
+        vd->pos += offset;
+        break;
+    case SEEK_END:
+        vd->pos = vd->data.size() - offset;
+        break;
+    }
+    return 0;
+}
+
+//---------------------------------------------------------
+//   ovTell
+//---------------------------------------------------------
+
+static long ovTell(void* datasource)
+{
+    VorbisData* vd = (VorbisData*)datasource;
+    return vd->pos;
+}
+
+//---------------------------------------------------------
+//   writeUncompressedSample
+//---------------------------------------------------------
+
+int SoundFont::writeUncompressedSample(Sample* s)
+{
+    // Prepare input data
+    QFile f(path);
+    if (!f.open(QIODevice::ReadOnly)) {
+        fprintf(stderr, "cannot open <%s>\n", qPrintable(f.fileName()));
+        return 0;
+    }
+    f.seek(samplePos + s->start);
+    int oggSize = s->end - s->start;
+    short * ibuffer = new short[oggSize];
+    f.read((char*)ibuffer, oggSize);
+    f.close();
+
+    vorbisData.pos  = 0;
+    vorbisData.data = QByteArray((char *)ibuffer, oggSize);
+
+    // Decode
+    QByteArray decodedData;
+    OggVorbis_File vf;
+    vorbisData.pos  = 0;
+    int length = 0;
+    if (ov_open_callbacks(&vorbisData, &vf, nullptr, 0, ovCallbacks) == 0)
+    {
+        double attenuation = 0;
+        for (int i = 0; i < vf.vc->comments; i++)
+        {
+            QString comment(vf.vc->user_comments[i]);
+            if (comment.contains("AMP="))
+            {
+                QStringList split = comment.split('=');
+                if (split.size() == 2)
+                {
+                    bool ok = false;
+                    attenuation = split[1].toDouble(&ok);
+                    if (!ok)
+                        attenuation = 0;
+                }
+            }
+        }
+        double linearAmp = pow(10.0, attenuation / 20.0);
+
+        short buffer[2048];
+        int numberRead = 0;
+        int section = 0;
+        do {
+            numberRead = ov_read(&vf, (char *)buffer, 2048 * sizeof(short), 0, 2, 1, &section);
+            for (unsigned int i = 0; i < numberRead / sizeof(short); i++)
+                buffer[i] = (double)buffer[i] / linearAmp;
+            write((char *)buffer, numberRead);
+            length += numberRead;
+        } while (numberRead);
+
+        ov_clear(&vf);
+    }
+
+    delete ibuffer;
+    return length;
+}
