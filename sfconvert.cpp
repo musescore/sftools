@@ -26,7 +26,6 @@
 #include <QtCore/QTime>
 #include "sfont.h"
 
-bool smallSf = false;
 
 //---------------------------------------------------------
 //   usage
@@ -56,6 +55,7 @@ int main(int argc, char* argv[])
       bool code = false;
       bool dump = false;
       bool compress = false;
+      bool smallSf = false;
       double oggQuality = 0.3;
       double oggAmp = -1.0;
       qint64 oggSerial = std::numeric_limits<qint64>::max();
@@ -118,7 +118,9 @@ int main(int argc, char* argv[])
             exit(4);
             }
 
-      SoundFont sf(argv[0]);
+      SfTools::SoundFont sf(argv[0]);
+      if (smallSf)
+            sf.smallSf = true;
 
       if (!sf.read()) {
             fprintf(stderr, "sf read error\n");
