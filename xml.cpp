@@ -1,14 +1,25 @@
 //=============================================================================
-//  MuseScore
-//  Music Composition & Notation
-//  $Id: xml.cpp 5568 2012-04-22 10:08:43Z wschweer $
+//  MuseScore sftools
 //
 //  Copyright (C) 2002-2011 Werner Schweer
 //
-//  This program is free software; you can redistribute it and/or modify
-//  it under the terms of the GNU General Public License version 2
-//  as published by the Free Software Foundation and appearing in
-//  the file LICENCE.GPL
+//  This work is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Library General Public
+//  License as published by the Free Software Foundation; either
+//  version 2 of the License, or (at your option) any later version.
+//
+//  In addition, as a special exception, licensor gives permission to
+//  link the code of this work with the OpenSSL Library (or with modified
+//  versions of OpenSSL that use the same license as OpenSSL), and
+//  distribute linked combinations including the two. You must obey the
+//  GNU General Public License in all respects for all of the code used
+//  other than OpenSSL. If you modify this file, you may extend this
+//  exception to your version of the file, but you are not obligated to
+//  do so. If you do not wish to do so, delete this exception statement
+//  from your version. (This exception is necessary should this work be
+//  included in a GPL-licenced work.)
+//
+//  See COPYING.LIB for the licence text and disclaimer of warranty.
 //=============================================================================
 
 #include "xml.h"
@@ -87,9 +98,9 @@ void Xml::tagE(const char* format, ...)
       va_start(args, format);
       putLevel();
       *this << '<';
-    	char buffer[BS];
+      char buffer[BS];
       vsnprintf(buffer, BS, format, args);
-    	*this << buffer;
+      *this << buffer;
       va_end(args);
       *this << "/>" << endl;
       }
@@ -267,5 +278,3 @@ void Xml::writeHtml(const QString& s)
       for (int i = 1; i < sl.size(); ++i)
             *this << sl[i] << "\n";
       }
-
-
