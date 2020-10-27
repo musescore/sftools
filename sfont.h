@@ -124,11 +124,10 @@ struct Preset {
 //---------------------------------------------------------
 
 struct Instrument {
-      char* name;
-      int index;        // used only for read
-      QList<Zone*> zones;
+      char* name {0};
+      int index {0};        // used only for read
+      QList<Zone*> zones {};
 
-      Instrument();
       ~Instrument();
       };
 
@@ -137,18 +136,17 @@ struct Instrument {
 //---------------------------------------------------------
 
 struct Sample {
-      char* name;
-      uint start;
-      uint end;
-      uint loopstart;
-      uint loopend;
-      uint samplerate;
+      char* name {0};
+      uint start {0};
+      uint end {0};
+      uint loopstart {0};
+      uint loopend {0};
+      uint samplerate {0};
 
-      int origpitch;
-      int pitchadj;
-      int sampletype;
+      int origpitch {0};
+      int pitchadj {0};
+      int sampletype {0};
 
-      Sample();
       ~Sample();
       };
 
