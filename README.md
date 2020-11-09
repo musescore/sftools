@@ -26,7 +26,7 @@ This compresses the Fluid sound font from 148 MBytes to 20 MBytes.
     sf3convert -z FluidR3.SF2 mops.sf3
 
 **The compressed sound font has the major version number 3. Its non standard
-and can be used only (so far) by [MuseScore](http://musescore.org), [Calf-Fluidsynth](http://calf-studio-gear.org/), [Carla](http://kxstudio.linuxaudio.org/Applications:Carla), [LMMS](https://lmms.io/), [Polyphone](https://www.polyphone-soundfonts.com/fr), [Qsynth](https://qsynth.sourceforge.io/), and [Qtractor](https://qtractor.sourceforge.io/).**
+and can be used only (so far) by [MuseScore](http://musescore.org), [Calf-Fluidsynth](http://calf-studio-gear.org/), [Carla](http://kxstudio.linuxaudio.org/Applications:Carla), [LMMS](https://lmms.io/), [Polyphone](https://www.polyphone-soundfonts.com/), [Qsynth](https://qsynth.sourceforge.io/), and [Qtractor](https://qtractor.sourceforge.io/).**
 
 
 ### TODO:
